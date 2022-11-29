@@ -45,30 +45,40 @@ class UserListCreateView(MyAPIView):
 class UserRetrieveUpdateDestroyView(MyAPIView):
     def get(self, *args, **kwargs):
         pk = kwargs.get('pk')
-        try:
-            return Response(self.users[pk])
-        except IndexError:
+        user = [i for i in self.users if i['id'] is pk]
+        if not user:
             return Response('Not Found')
-
+        else:
+            return Response(user)
 
     def put(self, *args, **kwargs):
         new_user = self.request.data
         pk = kwargs.get('pk')
-        try:
-            self.users[pk]['name'] = new_user['name']
-            self.users[pk]['age'] = new_user['age']
+        index = None
+        for i in range(len(self.users)):
+            if self.users[i]['id'] is pk:
+                index = i
+                break
+        if index:
+            self.users[index]['name'] = new_user['name']
+            self.users[index]['age'] = new_user['age']
             self.add_user(self.users)
-            print(self.users[pk])
-        except IndexError:
+        else:
             return Response('Not Found')
-        return Response(self.users[pk])
+        return Response(self.users[index])
 
     def delete(self, *args, **kwargs):
         pk = kwargs.get('pk')
-        try:
-            del self.users[pk]
+        index = None
+        for i in range(len(self.users)):
+            if self.users[i]['id'] is pk:
+                index = i
+                break
+
+        if index:
+            del self.users[index]
             self.add_user(self.users)
-        except IndexError:
+        else:
             return Response('Not Found')
 
         return Response('deleted')
